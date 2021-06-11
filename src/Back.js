@@ -48,16 +48,37 @@ app.get('/messages', (req,res) => {
     const user = req.header("User");
     const limit = req.query.limit;
     
-
-    const sendMessages = messages.filter((e)=>e.to==='todos'|| e.to===user || e.from===user);
-     
-   if(sendMessages.length>limit) res.send(sendMessages.slice(sendMessages.length-limit,sendMessages.lenght));
-    
+   
+    const sendMessages = messages.filter((e)=>e.to==='Todos'|| e.to===user || e.from===user);
+   if(sendMessages.length>limit) return res.send(sendMessages.slice(sendMessages.length-limit,sendMessages.lenght));
    else res.send(sendMessages);
     
 
     });
 
+
+    app.post('/status', (req,res) => {
+        const user = req.header("User");
+    
+        const participant = (participants.find(({name}) => name === user)) 
+        participant
+        ? ((participant.lastStatus = Date.now()) && res.sendStatus(200))
+        : res.sendStatus(400)
+        });
+
+
+
+        setInterval(() => {
+            participants = participants.filter(element => {
+                if (Date.now() - element.lastStatus < 10000) {
+                    return true
+                }
+                else {
+                    messages.push({from: element.name, to: 'Todos', text: 'sai da sala...', type: 'status', time: dayjs().format('HH:mm:ss')})
+                    return false
+                }    
+            })
+        }, 15000);
 
 
 
